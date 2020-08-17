@@ -13,12 +13,12 @@ import {PaginationService} from "src/app/shared/pagination.service";
 })
 export class DataService {
 
-  private apiKey = "v6nas9kT";
+  private apiKey = 'v6nas9kT';
   private urlQueryParams = {
-    key: "v6nas9kT",
+    key: this.apiKey,
     p: this.paginationService.paginatorSettings.currentPage.toString(),
     ps: this.paginationService.paginatorSettings.objectPerPage.toString(),
-    s: "relevance",
+    s: 'relevance',
     q: '',
     imgonly: 'True',
     type: '',
@@ -64,7 +64,7 @@ export class DataService {
       .subscribe((paginationSettings) => {
         this.urlQueryParams.p = paginationSettings.currentPage.toString();
         this.urlQueryParams.ps = paginationSettings.objectPerPage.toString();
-        this.setUpDataService(this.getCollection())
+        this.setUpDataService(this.getCollection());
       });
   }
 
@@ -74,7 +74,7 @@ export class DataService {
   getCollection(): Observable<IArtCollection> {
     this.isArtCollectionLoaded = false;
     this.deleteEmptyPropertiesInObject(this.urlQueryParams);
-    let queryParams = Object.entries(this.urlQueryParams).map(arrPair => arrPair.join("=")).join("&");
+    const queryParams = Object.entries(this.urlQueryParams).map(arrPair => arrPair.join('=')).join('&');
     let observableArtCollection: Observable<IArtCollection>;
     observableArtCollection = this.http.get<IArtCollection>(`https://www.rijksmuseum.nl/api/en/collection?${queryParams}`);
     return observableArtCollection
@@ -88,7 +88,7 @@ export class DataService {
   searchCollection(orderBy: string, searchKewword?: string): void {
 
     // Проверяем на подлинность выбраного значения "select"
-    let allowdSotTypeIndex = this.allowedSortTypes.findIndex((sortType) => sortType === orderBy.trim());
+    const allowdSotTypeIndex = this.allowedSortTypes.findIndex((sortType) => sortType === orderBy.trim());
     if (allowdSotTypeIndex >= 0 && allowdSotTypeIndex < this.allowedSortTypes.length) {
     } else {
       // Если переданный тип сортировки  не прошел проверку — берем первый тип сортировки с разрешенных типов
@@ -99,7 +99,7 @@ export class DataService {
     if (searchKewword && searchKewword.trim().length > 0) {
       this.urlQueryParams.q = encodeURI(searchKewword);
     } else {
-      delete this.urlQueryParams.q
+      delete this.urlQueryParams.q;
     }
     this.paginationService.paginatorSettings.currentPage = 1;
     this.setUpDataService(this.getCollection());
@@ -111,7 +111,7 @@ export class DataService {
    * @see https://data.rijksmuseum.nl/object-metadata/api/#collection-details-api
    */
   getArtObjectDetail(objectNumber: string): Observable<IArtObjectDetails> {
-    return this.http.get<IArtObjectDetails>(`https://www.rijksmuseum.nl/api/en/collection/${objectNumber}?key=${this.apiKey}`)
+    return this.http.get<IArtObjectDetails>(`https://www.rijksmuseum.nl/api/en/collection/${objectNumber}?key=${this.apiKey}`);
   }
 
   /**
@@ -129,14 +129,14 @@ export class DataService {
    * @param objectLink Объект, у которого нужно найти и удалить пустые свойства
    */
   private deleteEmptyPropertiesInObject(objectLink: { [propName: string]: string }): void {
-    let objectKeys = Object.keys(objectLink);
-    let emptyKeys = objectKeys.filter((key) => {
+    const objectKeys = Object.keys(objectLink);
+    const emptyKeys = objectKeys.filter((key) => {
       // Если свойство объекта пустое или оно === null — добавляем его в отфильтрованный массив
       return objectLink[key].trim().length <= 0;
     });
 
     emptyKeys.forEach((key) => {
-      delete objectLink[key]
+      delete objectLink[key];
     });
   }
 
@@ -155,7 +155,8 @@ export class DataService {
             if ((parseInt(params[key]) > 0 && parseInt(params[key]) <= 21)) {
               this.urlQueryParams[key] = params[key];
             } else {
-              throw new Error("Значение параметра  'f.dating.period' должно быть от '0' до '21', а вы передали ${params[key]}")
+              throw new Error('Значение параметра  \'f.dating.period\' должно быть от \'0\' до \'21\', а вы передали' +
+                ' ${params[key]}');
             }
             break;
           }
@@ -164,7 +165,7 @@ export class DataService {
             if ((/#[a-f0-9]{3,6}/gi).test(params[key])) {
               this.urlQueryParams[key] = params[key];
             } else {
-              throw new Error(`Значение параметра 'f.normalized32Colors.hex' должно быть в формате HTMLhexColor, а  вы передали ${params[key]}`)
+              throw new Error(`Значение параметра 'f.normalized32Colors.hex' должно быть в формате HTMLhexColor, а  вы передали ${params[key]}`);
             }
             break;
           }
@@ -174,7 +175,7 @@ export class DataService {
           }
         }
       } else {
-        throw new Error("Вы передали неверное название параметра")
+        throw new Error('Вы передали неверное название параметра')
       }
     }
   }
@@ -191,17 +192,27 @@ export class DataService {
         this.artObjects = responseArtCollection.artObjects;
         this.isArtCollectionLoaded = true;
         this.paginationService.maximumObjects = responseArtCollection.count;
-        resolve(responseArtCollection)
-      })
-    })
+        resolve(responseArtCollection);
+      });
+    });
   }
 
   public getArtObjectById(id: string): IArtObject {
     if (this.artCollection) {
       return this.artCollection.artObjects.find(predicate => predicate.id === id)
     } else {
-      return null
+      return null;
     }
+  }
+
+  public getSmallImageURL(imageURL: string, imageWidth: number = 500): string {
+    const INDEX_EQUAL_SIGHN =  imageURL.indexOf('=');
+    let nessesaryString;
+    if (INDEX_EQUAL_SIGHN === -1) {
+      return imageURL;
+    }
+    nessesaryString = imageURL.slice(0, INDEX_EQUAL_SIGHN + 1);
+    return nessesaryString + 's' + imageWidth;
   }
 
   /**
@@ -228,9 +239,9 @@ export class DataService {
               this.currentArtObjectDetails = response;
               this.isObjDetailsLoaded = true;
               observer.next(response);
-            })
+            });
         }
-      })
-    })
+      });
+    });
   }
 }

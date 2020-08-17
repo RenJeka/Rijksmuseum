@@ -14,8 +14,8 @@ export class MainComponent implements OnInit {
 
   // form
   public searchForm: FormGroup;
-  public orderBy = new FormControl("");
-  public searchKeyword = new FormControl("");
+  public orderBy = new FormControl('');
+  public searchKeyword = new FormControl('');
 
   constructor(
     public dataService: DataService,

@@ -11,8 +11,9 @@
       <div
         *ngIf="artObjectDetails.artObject.webImage; else notImage"
         class="image-block__image"
-        [ngStyle]="{ 'background-image': 'url(' + artObjectDetails.artObject.webImage.url + ')'}"
-        imageScale
+        [ngStyle]="{ 'background-image': 'url(' +
+        dataService.getSmallImageURL(artObjectDetails.artObject.webImage.url, 200) + ')'}"
+        [imageScale]="dataService.getSmallImageURL(artObjectDetails.artObject.webImage.url, 700)"
       >
       </div>
       <button
