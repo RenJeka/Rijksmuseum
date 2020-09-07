@@ -72,12 +72,10 @@ export class DataService {
    * Метод получает коллекцию с сервера
    */
   getCollection(): Observable<IArtCollection> {
-    this.isArtCollectionLoaded = false;
     this.deleteEmptyPropertiesInObject(this.urlQueryParams);
     const queryParams = Object.entries(this.urlQueryParams).map(arrPair => arrPair.join('=')).join('&');
-    let observableArtCollection: Observable<IArtCollection>;
-    observableArtCollection = this.http.get<IArtCollection>(`https://www.rijksmuseum.nl/api/en/collection?${queryParams}`);
-    return observableArtCollection
+    this.isArtCollectionLoaded = false;
+    return this.http.get<IArtCollection>(`https://www.rijksmuseum.nl/api/en/collection?${queryParams}`);
   }
 
   /**
@@ -197,11 +195,20 @@ export class DataService {
     });
   }
 
-  public getArtObjectById(id: string): IArtObject {
+  /**
+   * @deprecated
+   * Метод возвращает элемент Арт-коллекции (1 арт-объект), кот-й соответствует переданному в параметр ID
+   * @param artObjectID — ID арт-объекта, который необходимо найти и вернуть
+   */
+  public getArtObjectById(artObjectID: string): IArtObject {
     if (this.artCollection) {
-      return this.artCollection.artObjects.find(predicate => predicate.id === id)
+      return this.artCollection.artObjects.find(predicate => predicate.id === artObjectID);
     } else {
-      return null;
+      this.setUpDataService(this.getCollection())
+        .then(responseArtCollection => {
+          this.artCollection = responseArtCollection;
+          return this.artCollection.artObjects.find(predicate => predicate.id === artObjectID);
+        });
     }
   }
 

@@ -1,8 +1,8 @@
-import {Component, OnInit,} from '@angular/core';
-import {ActivatedRoute, Router} from "@angular/router";
+import {Component, OnInit, } from '@angular/core';
+import {ActivatedRoute, Router} from '@angular/router';
 
-import {DataService} from "src/app/shared/data.service";
-import {IArtObjectDetails} from "src/app/shared/iart-object-details";
+import {DataService} from 'src/app/shared/data.service';
+import {IArtObjectDetails} from 'src/app/shared/iart-object-details';
 
 @Component({
   selector: 'app-popup',
@@ -24,9 +24,9 @@ export class PopupComponent implements OnInit {
 
     this.dataService.setupOnInitComponents(this.route)
       .subscribe((responseObjDetails) => {
-        this.artObjectDetails = responseObjDetails
+        this.artObjectDetails = responseObjDetails;
         this.isInFavoriteCollection = this.checkFavoriteCollection();
-      })
+      });
   }
 
   /**
@@ -34,13 +34,13 @@ export class PopupComponent implements OnInit {
    * возвращает "false"
    */
   private checkFavoriteCollection(): boolean {
-    let isRepeatArtElement: IArtObjectDetails = this.dataService.favoriteArtCollection.find((element) => {
-      return element.artObject.objectNumber === this.artObjectDetails.artObject.objectNumber
+    const isRepeatArtElement: IArtObjectDetails = this.dataService.favoriteArtCollection.find((element) => {
+      return element.artObject.objectNumber === this.artObjectDetails.artObject.objectNumber;
     });
     if (isRepeatArtElement) {
-      return true
+      return true;
     } else {
-      return false
+      return false;
     }
   }
 
@@ -64,7 +64,7 @@ export class PopupComponent implements OnInit {
       if (favIndex >= 0) {
         this.dataService.favoriteArtCollection.splice(favIndex, 1);
       } else {
-        throw new Error(`Не найден элемент текущий элемент ${this.artObjectDetails} в массиве избранного ${this.dataService.favoriteArtCollection}`)
+        throw new Error(`Не найден элемент текущий элемент ${this.artObjectDetails} в массиве избранного ${this.dataService.favoriteArtCollection}`);
       }
       this.isInFavoriteCollection = false;
     }

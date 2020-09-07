@@ -1,7 +1,7 @@
 import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
-import {HttpClientModule} from "@angular/common/http";
-import {ReactiveFormsModule} from "@angular/forms";
+import {HttpClientModule} from '@angular/common/http';
+import {ReactiveFormsModule} from '@angular/forms';
 
 // Modules
 import { AppRoutingModule } from 'src/app/app-routing.module';
@@ -16,6 +16,8 @@ import { ErrorPageComponent } from 'src/app/error-page/error-page.component';
 // Directives
 import { ImageScaleDirective } from 'src/app/shared/image-scale.directive';
 import { NgForWithNumbersDirective } from 'src/app/shared/ng-for-with-numbers.directive';
+import { GreetingComponent } from './greeting/greeting.component';
+import { RefDirective } from './shared/ref.directive';
 
 @NgModule({
   declarations: [
@@ -26,6 +28,8 @@ import { NgForWithNumbersDirective } from 'src/app/shared/ng-for-with-numbers.di
     NgForWithNumbersDirective,
     ImageScaleDirective,
     ErrorPageComponent,
+    GreetingComponent,
+    RefDirective,
   ],
   imports: [
     BrowserModule,
@@ -34,6 +38,7 @@ import { NgForWithNumbersDirective } from 'src/app/shared/ng-for-with-numbers.di
     ReactiveFormsModule
   ],
   providers: [],
+  // entryComponents: [GreetingComponent],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

@@ -1,8 +1,8 @@
-import {Component, OnInit} from '@angular/core';
-import {FormControl, FormGroup} from "@angular/forms";
+import {Component, ComponentFactoryResolver, OnInit} from '@angular/core';
+import {FormControl, FormGroup} from '@angular/forms';
 
-import {DataService} from "src/app/shared/data.service";
-import {PaginationService} from "src/app/shared/pagination.service";
+import {DataService} from 'src/app/shared/data.service';
+import {PaginationService} from 'src/app/shared/pagination.service';
 
 
 @Component({
@@ -19,7 +19,7 @@ export class MainComponent implements OnInit {
 
   constructor(
     public dataService: DataService,
-    public paginationService: PaginationService
+    public paginationService: PaginationService,
   ) { }
 
   ngOnInit(): void {
@@ -30,7 +30,8 @@ export class MainComponent implements OnInit {
   }
 
   onSubmit(): void {
-    this.dataService.searchCollection(this.orderBy.value, this.searchKeyword.value)
+    this.dataService.searchCollection(this.orderBy.value, this.searchKeyword.value);
     this.searchKeyword.reset();
   }
+
 }
