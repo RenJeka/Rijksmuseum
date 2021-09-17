@@ -1,8 +1,8 @@
 import {Component, OnInit} from '@angular/core';
-import {ActivatedRoute, Router} from "@angular/router";
+import {ActivatedRoute, Router} from '@angular/router';
 
-import {DataService} from "src/app/shared/data.service";
-import {IArtObjectDetails} from "src/app/shared/iart-object-details";
+import {DataService} from 'src/app/shared/data.service';
+import {IArtObjectDetails} from 'src/app/shared/iart-object-details';
 
 @Component({
   selector: 'app-details',
@@ -23,16 +23,16 @@ export class DetailsComponent implements OnInit {
     this.dataService.setupOnInitComponents(this.route)
       .subscribe((responseObjDetails) => {
         this.artObjectDetails = responseObjDetails
-      })
+      });
   }
 
   onPressCategory(categoryName: string) {
-    this.dataService.searchCollection("relevance", categoryName);
-    this.router.navigate(['/'])
+    this.dataService.searchCollection('relevance', categoryName);
+    this.router.navigate(['/']);
   }
 
   searchByTag(searchingTagObj: { [propName: string]: any }) {
     this.dataService.searchByTag(searchingTagObj);
-    this.router.navigate(['/'])
+    this.router.navigate(['/']);
   }
 }

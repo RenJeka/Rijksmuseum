@@ -1,13 +1,13 @@
-import {IArtObjectImage} from "src/app/shared/iart-object-image";
+import {IArtObjectImage} from 'src/app/shared/iart-object-image';
 
 export interface IArtObject {
   hasImage: boolean;
-  headerImage: IArtObjectImage
+  headerImage: IArtObjectImage;
   id: string;
   links: {
     self: string;
     web: string;
-  }
+  };
   longTitle: string;
   objectNumber: string;
   permitDownload: boolean;
@@ -15,5 +15,5 @@ export interface IArtObject {
   productionPlaces: string[];
   showImage: boolean;
   title: string;
-  webImage: IArtObjectImage
+  webImage: IArtObjectImage;
 }

@@ -6,8 +6,8 @@ import {
 } from '@angular/core';
 
 /**
- * Директива работает точно также, как и "*ngFor", только кол-во элементов можно передавать простым числом (как аргумент
- * директивы). Т.е. директива выводит столько элементов, какое число переданно в параметре.
+ * The directive works exactly the same as "* ngFor", only the number of elements can be passed as a prime number (as an argument
+ * directives). Those. the directive displays as many elements as the number passed in the parameter.
  */
 @Directive({
   selector: '[ngForWithNumbers]'
@@ -20,7 +20,7 @@ export class NgForWithNumbersDirective {
 
   @Input('ngForWithNumbers') set duplicateElements(numberOfDuplicates: number) {
     this.viewContainer.clear();
-    for(let i=0; i < numberOfDuplicates; i++) {
+    for (let i = 0; i < numberOfDuplicates; i++) {
       this.viewContainer.createEmbeddedView(this.templateRef);
     }
   }

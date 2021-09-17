@@ -96,14 +96,6 @@
     </div>
   </ng-template>
 
-  <!--  PAGINATION START -->
-  <!--  TODO: Вынести погинацию в отдельный компонент -->
-  <!-- TODO: Спросить, как будет лучше — если нет результатов — полностью скрывать пагинацию или  оставитьь её,
-  просто сделать неактивной (добавить к <div
-    class="pagination"
-    *ngIf="!dataService.showFavorite
-           && (dataService.artCollection
-           && dataService.artCollection.artObjects.length > 0); else singlePage"> )-->
   <div
     class="pagination"
     *ngIf="!dataService.showFavorite
@@ -168,37 +160,6 @@
     </div>
   </div>
 
-
-<!-- TODO: see todo's in <div class="pagination"> -->
-  <!-- БЛОК ДЛЯ НЕАКТИВНОЙ ПАГИНАЦИИ -->
-<!--  <ng-template #singlePage>-->
-<!--    <div class="pagination">-->
-<!--      <div class="pagination-control">-->
-<!--        <div class="pagination-control pagination-control_left">-->
-<!--          <div class="btn pagination-control__start">-->
-<!--            <img src="assets/arrow-start.svg" alt="<<<">-->
-<!--          </div>-->
-<!--          <div class="btn pagination-control__prev">-->
-<!--            <img src="assets/arrow-next.svg" alt="<—">-->
-<!--          </div>-->
-<!--        </div>-->
-<!--        <div class="paging pagination__numbers">-->
-<!--          <ul>-->
-<!--            <li class="pagination__numbers_active">1</li>-->
-<!--          </ul>-->
-<!--        </div>-->
-<!--        <div class="pagination-control pagination-control_right">-->
-<!--          <div class="btn pagination-control__next">-->
-<!--            <img src="assets/arrow-next.svg" alt="—>">-->
-<!--          </div>-->
-<!--          <div class="btn pagination-control__finish">-->
-<!--            <img src="assets/arrow-start.svg" alt=">>>">-->
-<!--          </div>-->
-<!--        </div>-->
-<!--      </div>-->
-<!--    </div>-->
-<!--  </ng-template>-->
-  <!--  PAGINATION FINISH -->
 </section>
 
 

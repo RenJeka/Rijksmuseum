@@ -43,7 +43,7 @@ export interface IArtObjectDetails {
      offsetPercentageX: number;
      offsetPercentageY: number;
      url: string;
-     width:string;
+     width: string;
    }
    [propName: string]: any;
  };

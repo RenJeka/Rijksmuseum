@@ -24,6 +24,5 @@ export class AppComponent implements OnInit{
     greetingComponent.instance.close.subscribe(() => {
       this.refDir.containerRef.clear();
     });
-
   }
 }

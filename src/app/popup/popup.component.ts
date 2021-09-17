@@ -30,8 +30,8 @@ export class PopupComponent implements OnInit {
   }
 
   /**
-   * Метод проверяет, есть ли текущий элемент в коллекции "Избранное". Есть элемент есть — возвращает "true", если нет —
-   * возвращает "false"
+   * Method checked, is there current element in collection 'Favorite'. If exist — returns 'true', if not exist —
+   * return 'false'
    */
   private checkFavoriteCollection(): boolean {
     const isRepeatArtElement: IArtObjectDetails = this.dataService.favoriteArtCollection.find((element) => {

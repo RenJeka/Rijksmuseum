@@ -68,9 +68,6 @@ export class DataService {
       });
   }
 
-  /**
-   * Метод получает коллекцию с сервера
-   */
   getCollection(): Observable<IArtCollection> {
     this.deleteEmptyPropertiesInObject(this.urlQueryParams);
     const queryParams = Object.entries(this.urlQueryParams).map(arrPair => arrPair.join('=')).join('&');
@@ -79,23 +76,23 @@ export class DataService {
   }
 
   /**
-   * Метод запускает запрос для получения коллекции Арт Объектов с условием поиска
-   * @param orderBy — тип сортировки
-   * @param searchKewword — Ключевое слово для поиска
+   * The method starts a request to get a collection of Art Objects with a search condition
+   * @param orderBy — type of sorting
+   * @param searchKeyword — keyword for search results
    */
-  searchCollection(orderBy: string, searchKewword?: string): void {
+  searchCollection(orderBy: string, searchKeyword?: string): void {
 
-    // Проверяем на подлинность выбраного значения "select"
-    const allowdSotTypeIndex = this.allowedSortTypes.findIndex((sortType) => sortType === orderBy.trim());
-    if (allowdSotTypeIndex >= 0 && allowdSotTypeIndex < this.allowedSortTypes.length) {
+    // Check the authenticity of the chosen value "select"
+    const allowedSortTypeIndex = this.allowedSortTypes.findIndex((sortType) => sortType === orderBy.trim());
+    if (allowedSortTypeIndex >= 0 && allowedSortTypeIndex < this.allowedSortTypes.length) {
     } else {
-      // Если переданный тип сортировки  не прошел проверку — берем первый тип сортировки с разрешенных типов
-      // (установка по умолчанию)
+      // If the passed sorting type did not pass validation, take the first sorting type from the allowed types
+      // (default setting)
       orderBy = this.allowedSortTypes[0];
     }
     this.urlQueryParams.s = orderBy;
-    if (searchKewword && searchKewword.trim().length > 0) {
-      this.urlQueryParams.q = encodeURI(searchKewword);
+    if (searchKeyword && searchKeyword.trim().length > 0) {
+      this.urlQueryParams.q = encodeURI(searchKeyword);
     } else {
       delete this.urlQueryParams.q;
     }
@@ -104,8 +101,8 @@ export class DataService {
   }
 
   /**
-   * Метод получает дополнительную информацию о объекте искусства
-   * @param objectNumber Номер объекта, по которому нужно найти доп. информацию
+   * To get detail information about Art Object
+   * @param objectNumber Object number by which you need to find additional information.
    * @see https://data.rijksmuseum.nl/object-metadata/api/#collection-details-api
    */
   getArtObjectDetail(objectNumber: string): Observable<IArtObjectDetails> {
@@ -113,8 +110,8 @@ export class DataService {
   }
 
   /**
-   * Метод запускает запрос для получения коллекции Арт Объектов с условием поиска по тегам
-   * @param searchingTagObj — объект с тегом и его значением
+   * The method launches a request to get a collection of Art Objects with a search condition by tags
+   * @param searchingTagObj — an object with a tag and its value
    */
   public searchByTag(searchingTagObj: { [propName: string]: any }) {
     this.fillUrlQueryParams(searchingTagObj);
@@ -123,8 +120,7 @@ export class DataService {
   }
 
   /**
-   * Метод удаляет пустые свойства у объекта
-   * @param objectLink Объект, у которого нужно найти и удалить пустые свойства
+   * @param objectLink The object from which you want to find and remove empty properties
    */
   private deleteEmptyPropertiesInObject(objectLink: { [propName: string]: string }): void {
     const objectKeys = Object.keys(objectLink);
@@ -139,31 +135,32 @@ export class DataService {
   }
 
   /**
-   * Метод правильно заполняет объект с QueryParams (с которого будут в последствии взяты параметры запроса, чтобы
-   * сделать запрос на сервер)
-   * @param params параметры, значениями которых необходимо заполнить объект "urlQueryParams"
+   * The method correctly fills an object with QueryParams
+   * (from which query parameters will be taken later to make a request to the server)
+   * @param params the object "urlQueryParams" will be filled with these values
    */
   public fillUrlQueryParams(params: { [propName: string]: any }): void {
     for (let key in params) {
       if (this.allowedQueryParams.indexOf(key) !== -1) {
 
-        // свойства 'f.dating.period' и 'f.normalized32Colors.hex' должны быть в правильном формате
+        // properties 'f.dating.period' and 'f.normalized32Colors.hex' must be in correct format
         switch (key) {
           case 'f.dating.period': {
             if ((parseInt(params[key]) > 0 && parseInt(params[key]) <= 21)) {
               this.urlQueryParams[key] = params[key];
             } else {
-              throw new Error('Значение параметра  \'f.dating.period\' должно быть от \'0\' до \'21\', а вы передали' +
+              throw new Error('Parameter value  \'f.dating.period\' must to be from  \'0\' to \'21\', but you passed' +
                 ' ${params[key]}');
             }
             break;
           }
 
           case 'f.normalized32Colors.hex': {
+            // /#[a-f0-9]{3,6}/gi  — HTMLhexColor RegExp (for example '#d3d6d8')
             if ((/#[a-f0-9]{3,6}/gi).test(params[key])) {
               this.urlQueryParams[key] = params[key];
             } else {
-              throw new Error(`Значение параметра 'f.normalized32Colors.hex' должно быть в формате HTMLhexColor, а  вы передали ${params[key]}`);
+              throw new Error(`The value of the 'f.normalized32Colors.hex' parameter must be in HTMLhexColor format, but you passed ${params[key]}`);
             }
             break;
           }
@@ -173,14 +170,14 @@ export class DataService {
           }
         }
       } else {
-        throw new Error('Вы передали неверное название параметра')
+        throw new Error('You passed the wrong parameter name');
       }
     }
   }
 
   /**
-   * Метод записывает необходимые свойства этого сервиса (data.servise) при ответе от сервера.
-   * @param observable Observable-объект запроса данных (IArtCollection)
+   * The method writes the required properties of this service (data.servise) when responding from the server.
+   * @param observable - data request object (IArtCollection)
    */
   public setUpDataService(observable: Observable<IArtCollection>): Promise<IArtCollection> {
     this.showFavorite = false;
@@ -197,8 +194,8 @@ export class DataService {
 
   /**
    * @deprecated
-   * Метод возвращает элемент Арт-коллекции (1 арт-объект), кот-й соответствует переданному в параметр ID
-   * @param artObjectID — ID арт-объекта, который необходимо найти и вернуть
+   * The method returns an item of the Art collection (1 art object), which corresponds to the ID passed in the parameter
+   * @param artObjectID — ID of Art-Object
    */
   public getArtObjectById(artObjectID: string): IArtObject {
     if (this.artCollection) {
@@ -223,10 +220,10 @@ export class DataService {
   }
 
   /**
-   * Метод настраивает инициализацию компонента (передает в компонент нужный Арт-объект)
-   * @description Задача меотда — дать более простой интерфейс для инициализации компонента и
-   * избавится от повторяющегося кода.
-   * @param activatedRoute ссылка на инжектированный "activatedRoute" в компоненте
+   * The method configures the initialization of the component (transfers the required Art object to the component)
+   * @description The goal of the method is to provide a simpler interface for initializing the component
+   * and avoid of repetitive code.
+   * @param activatedRoute ссылка на инжектированный activatedRoute" в компоненте
    */
   public setupOnInitComponents(activatedRoute: ActivatedRoute): Observable<IArtObjectDetails> {
 
@@ -234,8 +231,8 @@ export class DataService {
 
       activatedRoute.params.subscribe((params: Params) => {
 
-        // Если запрос на получения детальных данных уже сделан для этого арт-объекта — просто возвращаем эти данные
-        // (чтобы не делать повторный запрос)
+        // If a request has already been made for this art object to get detailed data, just return this data
+        // (to avoid making a second request)
         if (this.currentArtObjectDetails && (this.currentArtObjectDetails.artObject.objectNumber === params.objNumber)) {
           observer.next(this.currentArtObjectDetails);
         } else {
