@@ -9,7 +9,7 @@
 
 ##### This is a test project, the essence of which is to give the user the opportunity to comfortably view basic information about the objects of art (paintings) of the Rijksmuseum.
 
-##### Let's see this project in work — http://renjeka.site/
+##### Let's see this project in work — [http://yevhenii.website/](http://yevhenii.website/)
 
 The data was taken from the official database of the museum by API, the link to the description of which is below.
 
