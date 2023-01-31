@@ -68,7 +68,7 @@ export class DataService {
       });
   }
 
-  getCollection(): Observable<IArtCollection> {
+  public getCollection(): Observable<IArtCollection> {
     this.deleteEmptyPropertiesInObject(this.urlQueryParams);
     const queryParams = Object.entries(this.urlQueryParams).map(arrPair => arrPair.join('=')).join('&');
     this.isArtCollectionLoaded = false;
@@ -80,7 +80,7 @@ export class DataService {
    * @param orderBy — type of sorting
    * @param searchKeyword — keyword for search results
    */
-  searchCollection(orderBy: string, searchKeyword?: string): void {
+  public searchCollection(orderBy: string, searchKeyword?: string): void {
 
     // Check the authenticity of the chosen value "select"
     const allowedSortTypeIndex = this.allowedSortTypes.findIndex((sortType) => sortType === orderBy.trim());
@@ -105,7 +105,7 @@ export class DataService {
    * @param objectNumber Object number by which you need to find additional information.
    * @see https://data.rijksmuseum.nl/object-metadata/api/#collection-details-api
    */
-  getArtObjectDetail(objectNumber: string): Observable<IArtObjectDetails> {
+  public getArtObjectDetail(objectNumber: string): Observable<IArtObjectDetails> {
     return this.http.get<IArtObjectDetails>(`https://www.rijksmuseum.nl/api/en/collection/${objectNumber}?key=${this.apiKey}`);
   }
 
@@ -193,33 +193,6 @@ export class DataService {
   }
 
   /**
-   * @deprecated
-   * The method returns an item of the Art collection (1 art object), which corresponds to the ID passed in the parameter
-   * @param artObjectID — ID of Art-Object
-   */
-  public getArtObjectById(artObjectID: string): IArtObject {
-    if (this.artCollection) {
-      return this.artCollection.artObjects.find(predicate => predicate.id === artObjectID);
-    } else {
-      this.setUpDataService(this.getCollection())
-        .then(responseArtCollection => {
-          this.artCollection = responseArtCollection;
-          return this.artCollection.artObjects.find(predicate => predicate.id === artObjectID);
-        });
-    }
-  }
-
-  public getSmallImageURL(imageURL: string, imageWidth: number = 500): string {
-    const INDEX_EQUAL_SIGHN =  imageURL.indexOf('=');
-    let nessesaryString;
-    if (INDEX_EQUAL_SIGHN === -1) {
-      return imageURL;
-    }
-    nessesaryString = imageURL.slice(0, INDEX_EQUAL_SIGHN + 1);
-    return nessesaryString + 's' + imageWidth;
-  }
-
-  /**
    * The method configures the initialization of the component (transfers the required Art object to the component)
    * @description The goal of the method is to provide a simpler interface for initializing the component
    * and avoid of repetitive code.
@@ -233,7 +206,10 @@ export class DataService {
 
         // If a request has already been made for this art object to get detailed data, just return this data
         // (to avoid making a second request)
-        if (this.currentArtObjectDetails && (this.currentArtObjectDetails.artObject.objectNumber === params.objNumber)) {
+        if (
+          this.currentArtObjectDetails
+          && (this.currentArtObjectDetails.artObject.objectNumber === params.objNumber)
+          ) {
           observer.next(this.currentArtObjectDetails);
         } else {
 
@@ -247,5 +223,44 @@ export class DataService {
         }
       });
     });
+  }
+
+  public getImageById(id: string, width: number = 500): string | null {
+    const artObjectImageUrl = this.getArtObjectImageUrl(id);
+    if (!artObjectImageUrl) {
+      return null;
+    }
+
+    const url = this.getImageURLwithSize(artObjectImageUrl, width);
+    console.log('url ', url);
+    return url;
+  }
+
+  private getArtObjectById(artObjectID: string): IArtObject | null {
+    if (!this.artObjects) {
+      return null;
+    }
+    return this.artObjects.find(predicate => predicate.id === artObjectID) || null;
+  }
+
+  private getArtObjectImageUrl(artObjectID: string): string | null {
+    if (this.currentArtObjectDetails
+        && this.currentArtObjectDetails.artObject.id === artObjectID
+        && this.currentArtObjectDetails.artObject.webImage?.url) {
+      return this.currentArtObjectDetails.artObject.webImage.url;
+
+    } else {
+      return this.getArtObjectById(artObjectID)?.webImage?.url || null;
+    }
+  }
+
+  private getImageURLwithSize(imageURL: string, imageWidth: number = 500): string {
+    const INDEX_EQUAL_SIGHN =  imageURL.indexOf('=');
+    let nessesaryString;
+    if (INDEX_EQUAL_SIGHN === -1) {
+      return imageURL;
+    }
+    nessesaryString = imageURL.slice(0, INDEX_EQUAL_SIGHN + 1);
+    return nessesaryString + 's' + imageWidth;
   }
 }

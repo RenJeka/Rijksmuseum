@@ -10,9 +10,9 @@
       *ngIf="artObjectDetails; else loadingImage"
       [ngStyle]="{
         backgroundImage: artObjectDetails.artObject.webImage ? 'url(' +
-        dataService.getSmallImageURL(artObjectDetails.artObject.webImage.url) + ')' : ''
+        dataService.getImageById(artObjectDetails.artObject.id) + ')' : ''
       }"
-      [imageScale]="dataService.getSmallImageURL(artObjectDetails.artObject.webImage.url, 700)"
+      [imageScale]="dataService.getImageById(artObjectDetails.artObject.id, 700)"
     ></div>
     <div class="details" *ngIf="artObjectDetails; else loadingDetails">
       <div class="details__item">

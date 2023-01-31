@@ -19,6 +19,7 @@ export interface IArtObjectDetails {
      value: string;
    }[];
    documentation: string[];
+   id: string;
    label: {
      date: string;
      description: string;

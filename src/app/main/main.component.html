@@ -57,7 +57,7 @@
         class="tile border-gray"
         [ngClass]="{'not-image': !favoriteArtObject.artObject.webImage.url}"
         [ngStyle]="{'background-image': 'url(' +
-        dataService.getSmallImageURL(favoriteArtObject.artObject.webImage.url) + ')'}"
+        dataService.getImageById(favoriteArtObject.id) + ')'}"
         [routerLink]="['/', 'popup',  favoriteArtObject.artObject.objectNumber]"
       >
         <div class="tile__popup-text">
@@ -77,7 +77,7 @@
         *ngFor="let artObject of dataService.artObjects"
         class="tile border-gray"
         [ngClass]="{'not-image': !artObject.headerImage.url}"
-        [ngStyle]="{'background-image': 'url(' + dataService.getSmallImageURL(artObject.webImage.url, 200) + ')'}"
+        [ngStyle]="{'background-image': 'url(' + dataService.getImageById(artObject.id, 200) + ')'}"
         [routerLink]="['/', 'popup',  artObject.objectNumber]"
       >
         <div class="tile__popup-text">

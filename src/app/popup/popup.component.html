@@ -7,10 +7,10 @@
   >
     <div class="image-block">
       <div class="image-block__image"
-        *ngIf="artObjectDetails.artObject.webImage; else notImage"
+        *ngIf="dataService.getImageById(artObjectDetails.artObject.id); else notImage"
         [ngStyle]="{ 'background-image': 'url(' +
-        dataService.getSmallImageURL(artObjectDetails.artObject.webImage.url, 200) + ')'}"
-        [imageScale]="dataService.getSmallImageURL(artObjectDetails.artObject.webImage.url, 700)"
+          dataService.getImageById(artObjectDetails.artObject.id, 200) + ')'}"
+        [imageScale]="dataService.getImageById(artObjectDetails.artObject.id, 700)"
       >
       </div>
       <button class="input btn"

@@ -64,7 +64,7 @@ export class PopupComponent implements OnInit {
       if (favIndex >= 0) {
         this.dataService.favoriteArtCollection.splice(favIndex, 1);
       } else {
-        throw new Error(`Не найден элемент текущий элемент ${this.artObjectDetails} в массиве избранного ${this.dataService.favoriteArtCollection}`);
+        throw new Error(`Can't find the element ${this.artObjectDetails} in favoriteArray ${this.dataService.favoriteArtCollection}`);
       }
       this.isInFavoriteCollection = false;
     }
