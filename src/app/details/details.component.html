@@ -1,13 +1,11 @@
 <div class="container">
   <div class="logo">Additional details</div>
-  <div
-    class="title"
+  <div class="title"
     *ngIf="artObjectDetails; else loadingTitle"
   >{{artObjectDetails.artObject.title}}</div>
 
   <div class="info-block">
-    <div
-      class="image"
+    <div class="image"
       [ngClass]="{'not-image': !artObjectDetails.artObject.webImage}"
       *ngIf="artObjectDetails; else loadingImage"
       [ngStyle]="{
@@ -75,9 +73,8 @@
 
       <div class="details__item">
         <h5 class="details__title">Cathegory</h5>
-        <div
-          *ngIf="artObjectDetails.artObject.classification.iconClassDescription.length > 0 ; else notInformation"
-          class="details__description details_link">
+        <div class="details__description details_link"
+          *ngIf="artObjectDetails.artObject.classification.iconClassDescription.length > 0 ; else notInformation">
           <ul>
             <li
               (click)="onPressCategory(categoryName)"

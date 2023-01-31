@@ -1,23 +1,19 @@
 <div class="container">
-  <div
-    class="title"
+  <div class="title"
     *ngIf="artObjectDetails; else loadingTitle"
   >{{artObjectDetails.artObject.title}}</div>
-  <div
+  <div class="info-block"
     *ngIf="artObjectDetails; else loadingInfo"
-    class="info-block"
   >
     <div class="image-block">
-      <div
+      <div class="image-block__image"
         *ngIf="artObjectDetails.artObject.webImage; else notImage"
-        class="image-block__image"
         [ngStyle]="{ 'background-image': 'url(' +
         dataService.getSmallImageURL(artObjectDetails.artObject.webImage.url, 200) + ')'}"
         [imageScale]="dataService.getSmallImageURL(artObjectDetails.artObject.webImage.url, 700)"
       >
       </div>
-      <button
-        class="input btn"
+      <button class="input btn"
         [ngClass]="isInFavoriteCollection ? 'btn_green' : 'btn_orange'"
         [disabled]="!dataService.isObjDetailsLoaded"
         (click)="toggleToFavCollection()"
@@ -27,16 +23,14 @@
   </div>
 
   <div class="control-block">
-    <button
-      class="input btn"
+    <button class="input btn"
       [ngClass]="{'btn_disabled': !dataService.isObjDetailsLoaded}"
       [disabled]="!dataService.isObjDetailsLoaded"
       (click)="goToDetail()"
     >View more details
     </button>
 
-    <button
-      class="input btn"
+    <button class="input btn"
       [routerLink]="'/'"
     >Close
     </button>
@@ -56,11 +50,7 @@
       <div class="image-block__image">
         <div class="spinner"></div>
       </div>
-      <button
-        class="input btn btn_disabled"
-      >Add to fav list
-      </button>
-
+      <button class="input btn btn_disabled">Add to fav list</button>
     </div>
 
     <div class="description">

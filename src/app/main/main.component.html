@@ -30,13 +30,15 @@
 
   </form>
   <div class="favorite-block">
-    <button
-      class="input btn btn_orange"
+    <button class="input btn btn_orange"
       (click)="dataService.showFavorite = !dataService.showFavorite"
     >{{(dataService.showFavorite) ? '🔙 Back to all collection' : '🌟 Show Favorite'}}</button>
   </div>
 
-  <ng-template [ngIf]="!dataService.showFavorite && !dataService.isArtCollectionLoaded">
+  <!-- Loading -->
+  <ng-template [ngIf]="
+  !dataService.showFavorite
+  && !dataService.isArtCollectionLoaded">
     <div class="tiles-container">
       <div
         *ngForWithNumbers="paginationService.paginatorSettings.objectPerPage"
@@ -47,6 +49,7 @@
     </div>
   </ng-template>
 
+ <!-- Favorite -->
   <ng-template [ngIf]="dataService.showFavorite">
     <div class="tiles-container">
       <div
@@ -64,7 +67,10 @@
     </div>
   </ng-template>
 
-  <ng-template [ngIf]="!dataService.showFavorite && dataService.isArtCollectionLoaded &&
+  <!-- Everything OK -->
+  <ng-template [ngIf]="
+  !dataService.showFavorite &&
+  dataService.isArtCollectionLoaded &&
   dataService.artCollection.artObjects.length > 0">
     <div class="tiles-container">
       <div
@@ -81,7 +87,10 @@
     </div>
   </ng-template>
 
-  <ng-template [ngIf]="!dataService.showFavorite && dataService.isArtCollectionLoaded &&
+  <!-- wrong query -->
+  <ng-template [ngIf]="
+  !dataService.showFavorite &&
+  dataService.isArtCollectionLoaded &&
   dataService.artCollection.artObjects.length <= 0">
     <div class="tiles-container tiles-container_empty">
       <p>No art object could be found by your query.</p>
@@ -89,7 +98,10 @@
     </div>
   </ng-template>
 
-  <ng-template [ngIf]="dataService.showFavorite && dataService.favoriteArtCollection.length <= 0">
+  <!-- No favorite -->
+  <ng-template [ngIf]="
+  dataService.showFavorite &&
+  dataService.favoriteArtCollection.length <= 0">
     <div class="tiles-container tiles-container_empty">
       <p>You have no art object in your favorite collection yet.</p>
       <p>Let's add some =)</p>
@@ -99,8 +111,7 @@
   <div
     class="pagination"
     *ngIf="!dataService.showFavorite
-           && (dataService.artCollection
-           && dataService.artCollection.artObjects.length > 0)"
+           && (dataService.artCollection && dataService.artCollection.artObjects.length > 0)"
   >
     <div class="pagination-control">
       <div class="pagination-control pagination-control_left">
