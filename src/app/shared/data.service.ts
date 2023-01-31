@@ -211,8 +211,8 @@ export class DataService {
           && (this.currentArtObjectDetails.artObject.objectNumber === params.objNumber)
           ) {
           observer.next(this.currentArtObjectDetails);
-        } else {
 
+        } else {
           this.isObjDetailsLoaded = false;
           this.getArtObjectDetail(params.objNumber)
             .subscribe(response => {
@@ -230,10 +230,7 @@ export class DataService {
     if (!artObjectImageUrl) {
       return null;
     }
-
-    const url = this.getImageURLwithSize(artObjectImageUrl, width);
-    console.log('url ', url);
-    return url;
+    return this.getImageURLwithSize(artObjectImageUrl, width);
   }
 
   private getArtObjectById(artObjectID: string): IArtObject | null {

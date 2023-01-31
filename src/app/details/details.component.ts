@@ -14,16 +14,20 @@ export class DetailsComponent implements OnInit {
   artObjectDetails: IArtObjectDetails;
 
   constructor(
+    private dataService: DataService,
     private router: Router,
     private route: ActivatedRoute,
-    public dataService: DataService
   ) { }
 
   ngOnInit(): void {
     this.dataService.setupOnInitComponents(this.route)
       .subscribe((responseObjDetails) => {
-        this.artObjectDetails = responseObjDetails
+        this.artObjectDetails = responseObjDetails;
       });
+  }
+
+  getImageURL(width: number = 500): string | null {
+    return this.dataService.getImageById(this.artObjectDetails.artObject.id, width);
   }
 
   onPressCategory(categoryName: string) {

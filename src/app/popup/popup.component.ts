@@ -1,5 +1,6 @@
 import {Component, OnInit, } from '@angular/core';
 import {ActivatedRoute, Router} from '@angular/router';
+import { timeStamp } from 'console';
 
 import {DataService} from 'src/app/shared/data.service';
 import {IArtObjectDetails} from 'src/app/shared/iart-object-details';
@@ -11,13 +12,17 @@ import {IArtObjectDetails} from 'src/app/shared/iart-object-details';
 })
 export class PopupComponent implements OnInit {
 
+  public get isArtObjectLoaded(): boolean {
+    return this.dataService.isArtCollectionLoaded;
+  }
+
   artObjectDetails: IArtObjectDetails;
   isInFavoriteCollection = false;
 
-  constructor(
+   constructor(
     private router: Router,
     private route: ActivatedRoute,
-    public dataService: DataService
+    private dataService: DataService
   ) { }
 
   ngOnInit(): void {
@@ -27,6 +32,10 @@ export class PopupComponent implements OnInit {
         this.artObjectDetails = responseObjDetails;
         this.isInFavoriteCollection = this.checkFavoriteCollection();
       });
+  }
+
+  getImageURL(width: number = 200): string | null {
+    return this.dataService.getImageById(this.artObjectDetails.artObject.id, width);
   }
 
   /**
