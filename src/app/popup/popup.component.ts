@@ -1,7 +1,5 @@
 import {Component, OnInit, } from '@angular/core';
 import {ActivatedRoute, Router} from '@angular/router';
-import { timeStamp } from 'console';
-
 import {DataService} from 'src/app/shared/data.service';
 import {IArtObjectDetails} from 'src/app/shared/iart-object-details';
 
