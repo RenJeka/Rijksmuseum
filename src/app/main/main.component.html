@@ -55,9 +55,9 @@
       <div
         *ngFor="let favoriteArtObject of dataService.favoriteArtCollection"
         class="tile border-gray"
-        [ngClass]="{'not-image': !favoriteArtObject.artObject.webImage.url}"
+        [ngClass]="{'not-image': !dataService.getImageById(favoriteArtObject.artObject.id)}"
         [ngStyle]="{'background-image': 'url(' +
-        dataService.getImageById(favoriteArtObject.id) + ')'}"
+        dataService.getImageById(favoriteArtObject.artObject.id) + ')'}"
         [routerLink]="['/', 'popup',  favoriteArtObject.artObject.objectNumber]"
       >
         <div class="tile__popup-text">
