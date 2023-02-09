@@ -12,29 +12,34 @@
   backdrop-filter: blur($backdropFilterBlur);
 }
 
-
 .container {
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
+  width: 60vw;
+  height: 80vh;
   position: fixed;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  max-width: $bodyWidthLimit;
-  width: $bodyWidthLimit;
-  height: 100vh;
   overflow: auto;
   background: #fff;
   padding: 15px 30px;
+  border-radius: 15px;
 }
 
 
 .logo {
   img {
     display: block;
+    position: absolute;
     margin: 0 auto;
-    height: 100%;
+    width: 50%;
+    opacity: 0.1;
+    top: 0;
+    left: 50%;
+    transform: translate(-50%, 0);
+    z-index: 0;
   }
 
   height: 200px;
@@ -42,9 +47,11 @@
 }
 
 .title {
-  min-height: 35px;
+  z-index: 10;
+  width: 100%;
+  margin: 15px 0;
+  padding: 0 40px;
   align-self: center;
-  margin-top: 15px;
   font-family: Verdana, Helvetica, "Times New Roman";
   font-size: 35px;
   font-weight: bold;
@@ -54,11 +61,12 @@
 }
 
 .details {
-  margin: 0 -#{$tileSideMargin};
-  padding: 25px;
+  //margin: 0 -#{$tileSideMargin};
+  //padding: 25px;
   font-size: 26px;
   text-indent: 30px;
   text-align: justify;
+  z-index: 10;
 
   p {
     margin-top: 30px;
@@ -66,9 +74,13 @@
 
   a {
     color: #11669e;
+    text-decoration: underline;
 
     &:hover {
-      color: #5ab3ee;
+      filter: brightness(1.5);
+    }
+    &:active {
+      filter: brightness(1);
     }
   }
 }
@@ -80,12 +92,21 @@
   height: 40px;
   background-image: url('~src/assets/cross.svg');
   cursor: pointer;
+  z-index: 15;
 }
 
 button {
   width: 200px;
   height: 45px;
   font-size: 16px;
+  z-index: 10;
+
+  &:hover {
+    filter: brightness(1.1);
+  }
+  &:active {
+    filter: brightness(1);
+  }
 }
 
 .copyright {
@@ -95,23 +116,53 @@ button {
 
 @media screen and (max-width: $bodyWidthLimit) {
   .container {
-    width: 100%;
+    width: 70%;
+
+    .title {
+       font-size: 24px;
+    }
+
+    .details {
+      font-size: 20px;
+    }
+
+    .cross {
+      width: 30px;
+      height: 30px;
+    }
   }
+
 }
 
 @media screen and (max-width: 700px) {
+
   .container {
     padding: 0;
-  }
-  .details {
-    margin: 0;
-    padding: 7px;
+
+    .title {
+      font-size: 16px;
+    }
+
+    .details {
+      font-size: 16px;
+      margin: 0;
+      padding: 15px;
+    }
+
+    .cross {
+      width: 20px;
+      height: 20px;
+    }
   }
 }
 
 @media screen and (max-width: 500px) {
   .details {
     font-size: 20px;
+  }
+  .cross {
+    top: 10px;
+    right: 10px;
   }
 }
 

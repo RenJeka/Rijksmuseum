@@ -95,11 +95,21 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .btn {
+
+  cursor: pointer;
+
+  &:hover {
+    filter: brightness(1.1);
+  }
+  &:active {
+    filter: brightness(1);
+  }
+
   &_orange {
-    background: #ff6347;
+    background: #ff6347 !important;
   }
   &_green {
-    background: #00B988;
+    background: #A5D6A7 !important;
   }
   &_disabled {
     background: #fffefd !important;
