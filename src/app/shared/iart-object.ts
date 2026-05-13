@@ -1,19 +1,19 @@
 import {IArtObjectImage} from 'src/app/shared/iart-object-image';
 
 export interface IArtObject {
-  hasImage: boolean;
-  headerImage: IArtObjectImage;
   id: string;
-  links: {
+  objectNumber: string;
+  title: string;
+  longTitle: string;
+  principalOrFirstMaker: string;
+  hasImage?: boolean;
+  headerImage?: IArtObjectImage;
+  webImage?: IArtObjectImage;
+  permitDownload?: boolean;
+  productionPlaces?: string[];
+  showImage?: boolean;
+  links?: {
     self: string;
     web: string;
   };
-  longTitle: string;
-  objectNumber: string;
-  permitDownload: boolean;
-  principalOrFirstMaker: string;
-  productionPlaces: string[];
-  showImage: boolean;
-  title: string;
-  webImage: IArtObjectImage;
 }

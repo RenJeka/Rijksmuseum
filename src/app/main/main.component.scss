@@ -52,6 +52,47 @@ form {
   }
 }
 
+.page-header {
+  text-align: center;
+  padding: 10px 0 20px;
+
+  &__title {
+    font-size: 36px;
+    font-weight: 700;
+    color: $colorGrey;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+
+  &__subtitle {
+    margin-top: 6px;
+    font-size: 14px;
+    color: #888;
+    letter-spacing: 0.02em;
+  }
+}
+
+.section-header {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  margin: 20px 0 4px;
+  padding: 0 #{$tileSideMargin};
+
+  &__title {
+    font-size: 20px;
+    font-weight: 700;
+    color: $colorGrey;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  &__count {
+    font-size: 13px;
+    color: #888;
+  }
+}
+
 .favorite-block {
   width: 100%;
   display: flex;
@@ -181,6 +222,10 @@ form {
 }
 
 @media screen and (max-width: 700px) {
+  .page-header {
+    &__title { font-size: 26px; }
+  }
+
   form {
     flex-direction: column;
     align-items: center;

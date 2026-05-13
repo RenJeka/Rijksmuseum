@@ -5,14 +5,17 @@
   >{{artObjectDetails.artObject.title}}</div>
 
   <div class="info-block">
-    <div class="image"
-      *ngIf="artObjectDetails; else loadingImage"
-      [ngClass]="{'not-image': getImageURL() === null}"
-      [ngStyle]="{
-        backgroundImage: getImageURL() ? 'url(' + getImageURL() + ')' : ''
-      }"
-      [imageScale]="getImageURL(700)"
-    ></div>
+    <ng-container *ngIf="artObjectDetails; else loadingImage">
+      <ng-container *ngIf="imageUrl$ | async as imageUrl; else noImage">
+        <div class="image"
+          [ngStyle]="{ backgroundImage: 'url(' + imageUrl + ')' }"
+          [imageScale]="(imageUrlLarge$ | async) || imageUrl"
+        ></div>
+      </ng-container>
+      <ng-template #noImage>
+        <div class="image not-image"></div>
+      </ng-template>
+    </ng-container>
     <div class="details" *ngIf="artObjectDetails; else loadingDetails">
       <div class="details__item">
         <h5 class="details__title">Long Title</h5>
@@ -31,7 +34,7 @@
       <div class="details__item">
         <h5 class="details__title">Date</h5>
         <div
-          *ngIf="artObjectDetails.artObject.dating.presentingDate ; else notInformation"
+          *ngIf="artObjectDetails.artObject.dating?.presentingDate ; else notInformation"
           class="details__description"
         >{{artObjectDetails.artObject.dating.presentingDate}}</div>
       </div>
@@ -52,7 +55,7 @@
       <div class="details__item">
         <h5 class="details__title">Materials</h5>
         <div
-          *ngIf="artObjectDetails.artObject.materials.length > 0 ; else notInformation"
+          *ngIf="(artObjectDetails.artObject.materials?.length || 0) > 0 ; else notInformation"
           class="details__description details_link">
           <ul>
             <li
@@ -73,7 +76,7 @@
       <div class="details__item">
         <h5 class="details__title">Cathegory</h5>
         <div class="details__description details_link"
-          *ngIf="artObjectDetails.artObject.classification.iconClassDescription.length > 0 ; else notInformation">
+          *ngIf="(artObjectDetails.artObject.classification?.iconClassDescription?.length || 0) > 0 ; else notInformation">
           <ul>
             <li
               (click)="onPressCategory(categoryName)"

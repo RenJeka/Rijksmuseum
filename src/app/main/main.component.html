@@ -1,33 +1,52 @@
 <section #modalGreeting>
+  <header class="page-header">
+    <h1 class="page-header__title">Rijksmuseum</h1>
+    <p class="page-header__subtitle">Explore the world-famous art collection of the Dutch national museum</p>
+  </header>
+
   <form (ngSubmit)="onSubmit()" [formGroup]="searchForm">
-    <div class="input-block input-block_sort">
-      <label for="sorting">Order By: </label>
-      <select
-        formControlName="orderBy"
-        name="sort"
-        id="sorting"
-        class="input select-sort"
-      >
-        <option value="relevance" [selected]="true">Relevance</option>
-        <option value="objecttype">Type</option>
-        <option value="chronologic">Chronologically (oldest first)</option>
-        <option value="achronologic">Chronologically (newest first)</option>
-        <option value="artist">Artist (a-z)</option>
-        <option value="artistdesc">Artist (z-a)</option>
-      </select>
-    </div>
     <div class="input-block input-block_keyword">
       <input
         formControlName="searchKeyword"
         type="text"
         class="input inp-word"
-        placeholder="Search keyword..."
+        placeholder="Search by title..."
       >
+    </div>
+    <div class="input-block input-block_creator">
+      <input
+        formControlName="creator"
+        type="text"
+        class="input inp-word"
+        placeholder="Artist (e.g. Rembrandt)"
+        title="Search by artist or maker — e.g. Rembrandt, Vermeer, Jan Steen"
+      >
+    </div>
+    <div class="input-block input-block_type">
+      <select formControlName="artType" class="input select-filter">
+        <option value="">All types</option>
+        <option value="painting">Painting</option>
+        <option value="drawing">Drawing</option>
+        <option value="print">Print</option>
+        <option value="photograph">Photograph</option>
+        <option value="sculpture">Sculpture</option>
+        <option value="miniature">Miniature</option>
+      </select>
+    </div>
+    <div class="input-block input-block_century">
+      <select formControlName="century" class="input select-filter">
+        <option value="">All centuries</option>
+        <option value="14??">15th century</option>
+        <option value="15??">16th century</option>
+        <option value="16??">17th century</option>
+        <option value="17??">18th century</option>
+        <option value="18??">19th century</option>
+        <option value="19??">20th century</option>
+      </select>
     </div>
     <div class="input-block input-block_submit">
       <input type="submit" class="input inp-search btn btn_orange" value='Search'>
     </div>
-
   </form>
   <div class="favorite-block">
     <button class="input btn btn_orange"
@@ -36,12 +55,10 @@
   </div>
 
   <!-- Loading -->
-  <ng-template [ngIf]="
-  !dataService.showFavorite
-  && !dataService.isArtCollectionLoaded">
+  <ng-template [ngIf]="!dataService.showFavorite && !dataService.isArtCollectionLoaded">
     <div class="tiles-container">
       <div
-        *ngForWithNumbers="paginationService.paginatorSettings.objectPerPage"
+        *ngForWithNumbers="12"
         class="tile tile_pulse border-gray"
       >
         <div class="spinner spinner_no-shift"></div>
@@ -49,15 +66,18 @@
     </div>
   </ng-template>
 
- <!-- Favorite -->
+  <!-- Favorite -->
   <ng-template [ngIf]="dataService.showFavorite">
+    <div class="section-header">
+      <h2 class="section-header__title">⭐ My Favorites</h2>
+      <span class="section-header__count">{{ dataService.favoriteArtCollection.length }} artworks saved</span>
+    </div>
     <div class="tiles-container">
       <div
         *ngFor="let favoriteArtObject of dataService.favoriteArtCollection"
         class="tile border-gray"
-        [ngClass]="{'not-image': !dataService.getImageById(favoriteArtObject.artObject.id)}"
-        [ngStyle]="{'background-image': 'url(' +
-        dataService.getImageById(favoriteArtObject.artObject.id) + ')'}"
+        [ngClass]="{'not-image': !(dataService.getImageById(favoriteArtObject.artObject.id, 500) | async)}"
+        [ngStyle]="{'background-image': 'url(' + ((dataService.getImageById(favoriteArtObject.artObject.id, 500) | async) || '') + ')'}"
         [routerLink]="['/', 'popup',  favoriteArtObject.artObject.objectNumber]"
       >
         <div class="tile__popup-text">
@@ -71,13 +91,16 @@
   <ng-template [ngIf]="
   !dataService.showFavorite &&
   dataService.isArtCollectionLoaded &&
-  dataService.artCollection.artObjects.length > 0">
+  dataService.artCollection?.artObjects?.length > 0">
+    <div class="section-header">
+      <h2 class="section-header__title">Collection</h2>
+    </div>
     <div class="tiles-container">
       <div
         *ngFor="let artObject of dataService.artObjects"
         class="tile border-gray"
-        [ngClass]="{'not-image': !artObject.headerImage.url}"
-        [ngStyle]="{'background-image': 'url(' + dataService.getImageById(artObject.id, 200) + ')'}"
+        [ngClass]="{'not-image': !(dataService.getImageById(artObject.id, 500) | async)}"
+        [ngStyle]="{'background-image': 'url(' + ((dataService.getImageById(artObject.id, 500) | async) || '') + ')'}"
         [routerLink]="['/', 'popup',  artObject.objectNumber]"
       >
         <div class="tile__popup-text">
@@ -91,7 +114,7 @@
   <ng-template [ngIf]="
   !dataService.showFavorite &&
   dataService.isArtCollectionLoaded &&
-  dataService.artCollection.artObjects.length <= 0">
+  (dataService.artCollection?.artObjects?.length || 0) <= 0">
     <div class="tiles-container tiles-container_empty">
       <p>No art object could be found by your query.</p>
       <p>Try other query</p>
@@ -108,68 +131,45 @@
     </div>
   </ng-template>
 
-  <div
+  <nav
     class="pagination"
     *ngIf="!dataService.showFavorite
            && (dataService.artCollection && dataService.artCollection.artObjects.length > 0)"
+    aria-label="Collection pagination"
   >
-    <div class="pagination-control">
-      <div class="pagination-control pagination-control_left">
-        <div
-          class="btn pagination-control__start"
-          (click)="paginationService.goToStart()"
-        >
-          <img src="assets/arrow-start.svg" alt="<<<">
-        </div>
-        <div
-          class="btn pagination-control__prev"
-          (click)="paginationService.goPrev()"
-        >
-          <img src="assets/arrow-next.svg" alt="<—">
-        </div>
-      </div>
-      <div
-        class="paging pagination__numbers"
+    <button
+      type="button"
+      class="pagination__pill pagination__pill_prev"
+      [disabled]="!paginationService.hasPrev()"
+      (click)="paginationService.goPrev()"
+      aria-label="Previous page"
+    >
+      <img src="assets/arrow-next.svg" alt="">
+    </button>
 
-      >
-        <ul>
-          <li
-            [ngClass]="{
-            'pagination__numbers_active': page === paginationService.paginatorSettings.currentPage
-            }"
-            *ngFor="let page of paginationService.paginatorSettings.paging"
-            (click)="paginationService.changePage(+page)"
-          >{{page}}</li>
-        </ul>
-      </div>
-      <div class="pagination-control pagination-control_right">
-        <div
-          class="btn pagination-control__next"
-          (click)="paginationService.goNext()"
-        >
-          <img src="assets/arrow-next.svg" alt="—>">
-        </div>
-        <div
-          class="btn pagination-control__finish"
-          (click)="paginationService.goToFinish()"
-        >
-          <img src="assets/arrow-start.svg" alt=">>>">
-        </div>
-      </div>
+    <div class="pagination__chip" aria-live="polite">
+      <span class="pagination__page">
+        Page {{ paginationService.currentState.currentPageNumber }}
+        <ng-container *ngIf="paginationService.totalPages > 0">
+          / {{ paginationService.totalPages | number }}
+        </ng-container>
+      </span>
+      <span class="pagination__total"
+            *ngIf="paginationService.currentState.totalItems > 0">
+        {{ paginationService.currentState.totalItems | number }} works
+      </span>
     </div>
-    <div class="results-per-page pagination__numbers">
-      <ul>
-        <li
-          [ngClass]="{
-            'pagination__numbers_active': +numOfPages === paginationService.paginatorSettings.objectPerPage
-            }"
-          *ngFor="let numOfPages of paginationService.paginatorSettings.allowedResultsPerPage"
-          (click)="paginationService.changeResultsPerPage(+numOfPages)"
 
-        >{{numOfPages}}</li>
-      </ul>
-    </div>
-  </div>
+    <button
+      type="button"
+      class="pagination__pill pagination__pill_next"
+      [disabled]="!paginationService.hasNext()"
+      (click)="paginationService.goNext()"
+      aria-label="Next page"
+    >
+      <img src="assets/arrow-next.svg" alt="">
+    </button>
+  </nav>
 
 </section>
 
