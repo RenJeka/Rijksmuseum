@@ -3,7 +3,7 @@
 
 <div style="text-align:center">
     <a href="http://renjeka.site/">
-        <img src="Rijksmuseum_application.jpg" />
+        <img src="Rijksmuseum_application.jpeg" />
     </a>
 </div>
 
