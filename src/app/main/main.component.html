@@ -88,44 +88,45 @@
     </div>
   </ng-template>
 
-  <div
+  <nav
     class="pagination"
     *ngIf="!dataService.showFavorite
            && (dataService.artCollection && dataService.artCollection.artObjects.length > 0)"
+    aria-label="Collection pagination"
   >
-    <div class="pagination-control">
-      <div class="pagination-control pagination-control_left">
-        <button
-          type="button"
-          class="btn pagination-control__prev"
-          [disabled]="!paginationService.hasPrev()"
-          (click)="paginationService.goPrev()"
-        >
-          <img src="assets/arrow-next.svg" alt="<—">
-        </button>
-      </div>
-      <div class="pagination__status">
-        Page {{paginationService.currentState.currentPageNumber}}
+    <button
+      type="button"
+      class="pagination__pill pagination__pill_prev"
+      [disabled]="!paginationService.hasPrev()"
+      (click)="paginationService.goPrev()"
+      aria-label="Previous page"
+    >
+      <img src="assets/arrow-next.svg" alt="">
+    </button>
+
+    <div class="pagination__chip" aria-live="polite">
+      <span class="pagination__page">
+        Page {{ paginationService.currentState.currentPageNumber }}
         <ng-container *ngIf="paginationService.totalPages > 0">
-          of {{paginationService.totalPages}}
+          / {{ paginationService.totalPages | number }}
         </ng-container>
-        <span class="pagination__total"
-          *ngIf="paginationService.currentState.totalItems > 0">
-          • {{paginationService.currentState.totalItems}} total
-        </span>
-      </div>
-      <div class="pagination-control pagination-control_right">
-        <button
-          type="button"
-          class="btn pagination-control__next"
-          [disabled]="!paginationService.hasNext()"
-          (click)="paginationService.goNext()"
-        >
-          <img src="assets/arrow-next.svg" alt="—>">
-        </button>
-      </div>
+      </span>
+      <span class="pagination__total"
+            *ngIf="paginationService.currentState.totalItems > 0">
+        {{ paginationService.currentState.totalItems | number }} works
+      </span>
     </div>
-  </div>
+
+    <button
+      type="button"
+      class="pagination__pill pagination__pill_next"
+      [disabled]="!paginationService.hasNext()"
+      (click)="paginationService.goNext()"
+      aria-label="Next page"
+    >
+      <img src="assets/arrow-next.svg" alt="">
+    </button>
+  </nav>
 
 </section>
 
