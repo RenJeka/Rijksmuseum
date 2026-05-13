@@ -1,53 +1,26 @@
 import {Injectable} from '@angular/core';
-import {HttpClient} from "@angular/common/http";
-import {ActivatedRoute, Params} from "@angular/router";
-import {Observable, Subject} from "rxjs";
+import {ActivatedRoute, Params} from '@angular/router';
+import {forkJoin, Observable, of, throwError} from 'rxjs';
+import {map, switchMap, tap} from 'rxjs/operators';
 
-import {IArtCollection} from "src/app/shared/iart-collection";
-import {IArtObject} from "src/app/shared/iart-object";
-import {IArtObjectDetails} from "src/app/shared/iart-object-details";
-import {PaginationService} from "src/app/shared/pagination.service";
+import {IArtCollection} from 'src/app/shared/iart-collection';
+import {IArtObject} from 'src/app/shared/iart-object';
+import {IArtObjectDetails} from 'src/app/shared/iart-object-details';
+import {ImageLoaderService} from 'src/app/shared/api/image-loader.service';
+import {LinkedArtAdapter} from 'src/app/shared/api/linked-art.adapter';
+import {PaginationService} from 'src/app/shared/pagination.service';
+import {RijksLinkedArtClient} from 'src/app/shared/api/rijks-linked-art.client';
+import {SearchParams} from 'src/app/shared/api/linked-art-types';
 
-@Injectable({
-  providedIn: 'root'
-})
+interface SearchState {
+  q: string;
+  type: string;
+  material: string;
+  technique: string;
+}
+
+@Injectable({providedIn: 'root'})
 export class DataService {
-
-  private apiKey = 'v6nas9kT';
-  private urlQueryParams = {
-    key: this.apiKey,
-    p: this.paginationService.paginatorSettings.currentPage.toString(),
-    ps: this.paginationService.paginatorSettings.objectPerPage.toString(),
-    s: 'relevance',
-    q: '',
-    imgonly: 'True',
-    type: '',
-    material: '',
-    technique: '',
-    'f.dating.period': '',
-    'f.normalized32Colors.hex': '',
-  };
-  private allowedSortTypes = [
-    'relevance',
-    'objecttype',
-    'chronologic',
-    'achronologic',
-    'artist',
-    'artistdesc',
-  ];
-  private allowedQueryParams = [
-    'key',
-    'p',
-    'ps',
-    's',
-    'q',
-    'imgonly',
-    'type',
-    'material',
-    'technique',
-    'f.dating.period',
-    'f.normalized32Colors.hex',
-  ];
 
   showFavorite = false;
   artCollection: IArtCollection;
@@ -56,208 +29,177 @@ export class DataService {
   isArtCollectionLoaded = false;
   isObjDetailsLoaded = false;
   favoriteArtCollection: IArtObjectDetails[] = [];
+
+  private searchState: SearchState = {q: '', type: '', material: '', technique: ''};
+
   constructor(
-    private http: HttpClient,
+    private client: RijksLinkedArtClient,
+    private adapter: LinkedArtAdapter,
+    private imageLoader: ImageLoaderService,
     private paginationService: PaginationService,
   ) {
-    this.paginationService.paginatorStream$
-      .subscribe((paginationSettings) => {
-        this.urlQueryParams.p = paginationSettings.currentPage.toString();
-        this.urlQueryParams.ps = paginationSettings.objectPerPage.toString();
-        this.setUpDataService(this.getCollection());
-      });
+    this.paginationService.pageChange$.subscribe(() => {
+      this.runSearch();
+    });
+    // Initial load
+    this.runSearch();
   }
 
-  public getCollection(): Observable<IArtCollection> {
-    this.deleteEmptyPropertiesInObject(this.urlQueryParams);
-    const queryParams = Object.entries(this.urlQueryParams).map(arrPair => arrPair.join('=')).join('&');
+  /** Fetches the current page of search results and updates service state. */
+  getCollection(): Observable<IArtCollection> {
+    const params: SearchParams = {imageAvailable: 'true'};
+    if (this.searchState.q) {
+      params.title = this.searchState.q;
+    }
+    if (this.searchState.type) {
+      params.type = this.searchState.type;
+    }
+    if (this.searchState.material) {
+      params.material = this.searchState.material;
+    }
+    if (this.searchState.technique) {
+      params.technique = this.searchState.technique;
+    }
+    const token = this.paginationService.currentState.currentPageToken;
+    if (token) {
+      params.pageToken = token;
+    }
+
     this.isArtCollectionLoaded = false;
-    return this.http.get<IArtCollection>(`https://www.rijksmuseum.nl/api/en/collection?${queryParams}`);
-  }
 
-  /**
-   * The method starts a request to get a collection of Art Objects with a search condition
-   * @param orderBy — type of sorting
-   * @param searchKeyword — keyword for search results
-   */
-  public searchCollection(orderBy: string, searchKeyword?: string): void {
-
-    // Check the authenticity of the chosen value "select"
-    const allowedSortTypeIndex = this.allowedSortTypes.findIndex((sortType) => sortType === orderBy.trim());
-    if (allowedSortTypeIndex >= 0 && allowedSortTypeIndex < this.allowedSortTypes.length) {
-    } else {
-      // If the passed sorting type did not pass validation, take the first sorting type from the allowed types
-      // (default setting)
-      orderBy = this.allowedSortTypes[0];
-    }
-    this.urlQueryParams.s = orderBy;
-    if (searchKeyword && searchKeyword.trim().length > 0) {
-      this.urlQueryParams.q = encodeURI(searchKeyword);
-    } else {
-      delete this.urlQueryParams.q;
-    }
-    this.paginationService.paginatorSettings.currentPage = 1;
-    this.setUpDataService(this.getCollection());
-  }
-
-  /**
-   * To get detail information about Art Object
-   * @param objectNumber Object number by which you need to find additional information.
-   * @see https://data.rijksmuseum.nl/object-metadata/api/#collection-details-api
-   */
-  public getArtObjectDetail(objectNumber: string): Observable<IArtObjectDetails> {
-    return this.http.get<IArtObjectDetails>(`https://www.rijksmuseum.nl/api/en/collection/${objectNumber}?key=${this.apiKey}`);
-  }
-
-  /**
-   * The method launches a request to get a collection of Art Objects with a search condition by tags
-   * @param searchingTagObj — an object with a tag and its value
-   */
-  public searchByTag(searchingTagObj: { [propName: string]: any }) {
-    this.fillUrlQueryParams(searchingTagObj);
-    this.paginationService.paginatorSettings.currentPage = 1;
-    this.setUpDataService(this.getCollection());
-  }
-
-  /**
-   * @param objectLink The object from which you want to find and remove empty properties
-   */
-  private deleteEmptyPropertiesInObject(objectLink: { [propName: string]: string }): void {
-    const objectKeys = Object.keys(objectLink);
-    const emptyKeys = objectKeys.filter((key) => {
-      // Если свойство объекта пустое или оно === null — добавляем его в отфильтрованный массив
-      return objectLink[key].trim().length <= 0;
-    });
-
-    emptyKeys.forEach((key) => {
-      delete objectLink[key];
-    });
-  }
-
-  /**
-   * The method correctly fills an object with QueryParams
-   * (from which query parameters will be taken later to make a request to the server)
-   * @param params the object "urlQueryParams" will be filled with these values
-   */
-  public fillUrlQueryParams(params: { [propName: string]: any }): void {
-    for (let key in params) {
-      if (this.allowedQueryParams.indexOf(key) !== -1) {
-
-        // properties 'f.dating.period' and 'f.normalized32Colors.hex' must be in correct format
-        switch (key) {
-          case 'f.dating.period': {
-            if ((parseInt(params[key]) > 0 && parseInt(params[key]) <= 21)) {
-              this.urlQueryParams[key] = params[key];
-            } else {
-              throw new Error('Parameter value  \'f.dating.period\' must to be from  \'0\' to \'21\', but you passed' +
-                ' ${params[key]}');
-            }
-            break;
-          }
-
-          case 'f.normalized32Colors.hex': {
-            // /#[a-f0-9]{3,6}/gi  — HTMLhexColor RegExp (for example '#d3d6d8')
-            if ((/#[a-f0-9]{3,6}/gi).test(params[key])) {
-              this.urlQueryParams[key] = params[key];
-            } else {
-              throw new Error(`The value of the 'f.normalized32Colors.hex' parameter must be in HTMLhexColor format, but you passed ${params[key]}`);
-            }
-            break;
-          }
-
-          default: {
-            this.urlQueryParams[key] = params[key];
-          }
+    return this.client.searchCollection(params).pipe(
+      tap((page) => {
+        this.paginationService.applySearchResponse(
+          page.next?.id,
+          page.prev?.id,
+          page.partOf?.totalItems || 0,
+        );
+      }),
+      switchMap((page) => {
+        const ids = (page.orderedItems || []).map((it) => this.client.extractNumericId(it.id));
+        if (ids.length === 0) {
+          return of({total: page.partOf?.totalItems || 0, artObjects: [] as IArtObject[]});
         }
-      } else {
-        throw new Error('You passed the wrong parameter name');
-      }
+        const requests = ids.map((id) => this.client.getHumanMadeObject(id));
+        return forkJoin(requests).pipe(
+          map((objects) => ({
+            total: page.partOf?.totalItems || 0,
+            artObjects: objects.map((o) => this.adapter.mapHumanMadeObjectToArtObject(o)),
+          })),
+        );
+      }),
+      map(({total, artObjects}) => ({artObjects, count: total} as IArtCollection)),
+    );
+  }
+
+  /**
+   * Triggered by the search form. `orderBy` is ignored — the new API has no
+   * sorting parameter — kept for signature compatibility.
+   */
+  searchCollection(_orderBy: string, searchKeyword?: string): void {
+    this.searchState.q = searchKeyword?.trim() || '';
+    this.searchState.type = '';
+    this.searchState.material = '';
+    this.searchState.technique = '';
+    this.imageLoader.reset();
+    this.paginationService.reset();
+  }
+
+  /** Triggered by clicking a material/technique/type tag in the details page. */
+  searchByTag(searchingTagObj: { [propName: string]: any }): void {
+    this.searchState = {q: '', type: '', material: '', technique: ''};
+    if (typeof searchingTagObj.type === 'string') {
+      this.searchState.type = searchingTagObj.type;
     }
+    if (typeof searchingTagObj.material === 'string') {
+      this.searchState.material = searchingTagObj.material;
+    }
+    if (typeof searchingTagObj.technique === 'string') {
+      this.searchState.technique = searchingTagObj.technique;
+    }
+    this.imageLoader.reset();
+    this.paginationService.reset();
   }
 
   /**
-   * The method writes the required properties of this service (data.servise) when responding from the server.
-   * @param observable - data request object (IArtCollection)
+   * Resolve a museum object number (e.g. "SK-C-5") into full Linked Art details.
+   * Performs a search by `objectNumber` to obtain the LOD id, then fetches the
+   * HumanMadeObject and (if present) its VisualItem for iconclass categories.
    */
-  public setUpDataService(observable: Observable<IArtCollection>): Promise<IArtCollection> {
-    this.showFavorite = false;
-    return new Promise<IArtCollection>((resolve) => {
-      observable.subscribe((responseArtCollection) => {
-        this.artCollection = responseArtCollection;
-        this.artObjects = responseArtCollection.artObjects;
-        this.isArtCollectionLoaded = true;
-        this.paginationService.maximumObjects = responseArtCollection.count;
-        resolve(responseArtCollection);
-      });
-    });
+  getArtObjectDetail(objectNumber: string): Observable<IArtObjectDetails> {
+    return this.client.searchCollection({objectNumber}).pipe(
+      switchMap((page) => {
+        const first = (page.orderedItems || [])[0];
+        if (!first) {
+          return throwError(`Object ${objectNumber} not found`);
+        }
+        const numericId = this.client.extractNumericId(first.id);
+        return this.client.getHumanMadeObject(numericId);
+      }),
+      switchMap((la) => {
+        const visualUrl = la.shows?.[0]?.id;
+        const visual$ = visualUrl
+          ? this.client.getVisualItem(this.client.extractNumericId(visualUrl))
+          : of(null);
+        return visual$.pipe(map((vi) => this.adapter.mapToArtObjectDetails(la, vi)));
+      }),
+    );
   }
 
   /**
-   * The method configures the initialization of the component (transfers the required Art object to the component)
-   * @description The goal of the method is to provide a simpler interface for initializing the component
-   * and avoid of repetitive code.
-   * @param activatedRoute ссылка на инжектированный activatedRoute" в компоненте
+   * Provides cached art-object details to popup/detail components. When the
+   * route param matches the already-loaded object, returns it without a refetch.
    */
-  public setupOnInitComponents(activatedRoute: ActivatedRoute): Observable<IArtObjectDetails> {
-
+  setupOnInitComponents(activatedRoute: ActivatedRoute): Observable<IArtObjectDetails> {
     return new Observable<IArtObjectDetails>((observer) => {
-
       activatedRoute.params.subscribe((params: Params) => {
-
-        // If a request has already been made for this art object to get detailed data, just return this data
-        // (to avoid making a second request)
+        const objNum = params.objNumber;
         if (
           this.currentArtObjectDetails
-          && (this.currentArtObjectDetails.artObject.objectNumber === params.objNumber)
-          ) {
+          && this.currentArtObjectDetails.artObject.objectNumber === objNum
+        ) {
           observer.next(this.currentArtObjectDetails);
-
-        } else {
-          this.isObjDetailsLoaded = false;
-          this.getArtObjectDetail(params.objNumber)
-            .subscribe(response => {
-              this.currentArtObjectDetails = response;
-              this.isObjDetailsLoaded = true;
-              observer.next(response);
-            });
+          return;
         }
+        this.isObjDetailsLoaded = false;
+        this.getArtObjectDetail(objNum).subscribe(
+          (response) => {
+            this.currentArtObjectDetails = response;
+            this.isObjDetailsLoaded = true;
+            observer.next(response);
+          },
+          (err) => {
+            console.error(`Failed to load details for ${objNum}:`, err);
+          },
+        );
       });
     });
   }
 
-  public getImageById(id: string, width: number = 500): string | null {
-    const artObjectImageUrl = this.getArtObjectImageUrl(id);
-    if (!artObjectImageUrl) {
-      return null;
-    }
-    return this.getImageURLwithSize(artObjectImageUrl, width);
+  /**
+   * Returns an Observable IIIF image URL for the given object id, scaled to
+   * the requested width. Resolution is lazy and cached.
+   */
+  getImageById(idOrUrl: string, width: number = 500): Observable<string | null> {
+    return this.imageLoader.getImageUrl(idOrUrl, width);
   }
 
-  private getArtObjectById(artObjectID: string): IArtObject | null {
-    if (!this.artObjects) {
-      return null;
-    }
-    return this.artObjects.find(predicate => predicate.id === artObjectID) || null;
-  }
+  // ===== internals =====
 
-  private getArtObjectImageUrl(artObjectID: string): string | null {
-    if (this.currentArtObjectDetails
-        && this.currentArtObjectDetails.artObject.id === artObjectID
-        && this.currentArtObjectDetails.artObject.webImage?.url) {
-      return this.currentArtObjectDetails.artObject.webImage.url;
-
-    } else {
-      return this.getArtObjectById(artObjectID)?.webImage?.url || null;
-    }
-  }
-
-  private getImageURLwithSize(imageURL: string, imageWidth: number = 500): string {
-    const INDEX_EQUAL_SIGHN =  imageURL.indexOf('=');
-    let nessesaryString;
-    if (INDEX_EQUAL_SIGHN === -1) {
-      return imageURL;
-    }
-    nessesaryString = imageURL.slice(0, INDEX_EQUAL_SIGHN + 1);
-    return nessesaryString + 's' + imageWidth;
+  private runSearch(): void {
+    this.showFavorite = false;
+    this.getCollection().subscribe(
+      (collection) => {
+        this.artCollection = collection;
+        this.artObjects = collection.artObjects;
+        this.isArtCollectionLoaded = true;
+      },
+      (err) => {
+        console.error('Failed to load collection:', err);
+        this.artCollection = {artObjects: [], count: 0};
+        this.artObjects = [];
+        this.isArtCollectionLoaded = true;
+      },
+    );
   }
 }
