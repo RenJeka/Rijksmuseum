@@ -17,6 +17,8 @@ interface SearchState {
   type: string;
   material: string;
   technique: string;
+  creator: string;
+  creationDate: string;
 }
 
 @Injectable({providedIn: 'root'})
@@ -30,7 +32,7 @@ export class DataService {
   isObjDetailsLoaded = false;
   favoriteArtCollection: IArtObjectDetails[] = [];
 
-  private searchState: SearchState = {q: '', type: '', material: '', technique: ''};
+  private searchState: SearchState = {q: '', type: '', material: '', technique: '', creator: '', creationDate: ''};
 
   constructor(
     private client: RijksLinkedArtClient,
@@ -59,6 +61,12 @@ export class DataService {
     }
     if (this.searchState.technique) {
       params.technique = this.searchState.technique;
+    }
+    if (this.searchState.creator) {
+      params.creator = this.searchState.creator;
+    }
+    if (this.searchState.creationDate) {
+      params.creationDate = this.searchState.creationDate;
     }
     const token = this.paginationService.currentState.currentPageToken;
     if (token) {
@@ -105,9 +113,29 @@ export class DataService {
     this.paginationService.reset();
   }
 
+  /**
+   * Full-featured search from the main form — title, creator, type and century
+   * can all be combined. Called instead of the old searchCollection() from main.component.
+   */
+  applySearch(filters: {
+    keyword?: string;
+    creator?: string;
+    type?: string;
+    creationDate?: string;
+  }): void {
+    this.searchState.q = filters.keyword?.trim() || '';
+    this.searchState.creator = filters.creator?.trim() || '';
+    this.searchState.type = filters.type || '';
+    this.searchState.creationDate = filters.creationDate || '';
+    this.searchState.material = '';
+    this.searchState.technique = '';
+    this.imageLoader.reset();
+    this.paginationService.reset();
+  }
+
   /** Triggered by clicking a material/technique/type tag in the details page. */
   searchByTag(searchingTagObj: { [propName: string]: any }): void {
-    this.searchState = {q: '', type: '', material: '', technique: ''};
+    this.searchState = {q: '', type: '', material: '', technique: '', creator: '', creationDate: ''};
     if (typeof searchingTagObj.type === 'string') {
       this.searchState.type = searchingTagObj.type;
     }

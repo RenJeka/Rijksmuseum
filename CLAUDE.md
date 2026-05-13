@@ -53,9 +53,10 @@ The Linked Art API is divided into three levels:
 ### Application state — on `DataService` (`src/app/shared/data.service.ts`)
 
 `DataService` is a facade over the API layer. It:
-- holds `searchState` (q, type, material, technique) in a private field;
+- holds `searchState` (q, type, material, technique, creator, creationDate) in a private field;
 - holds the current collection (`artCollection`, `artObjects`), details of the active object (`currentArtObjectDetails`), favorites (`favoriteArtCollection`), and loading flags;
-- subscribes to `paginationService.pageChange$` in the constructor — any page change (goNext/goPrev/reset) triggers a new request. **To reload the list — change the state via `PaginationService`** (or via `searchCollection()` / `searchByTag()`), and do not call `getCollection()` directly;
+- subscribes to `paginationService.pageChange$` in the constructor — any page change (goNext/goPrev/reset) triggers a new request. **To reload the list — change the state via `PaginationService`** (or via `applySearch()` / `searchByTag()`), and do not call `getCollection()` directly;
+- `applySearch({keyword, creator, type, creationDate})` — the main form search, combines all four API filters and resets pagination. `searchCollection()` kept for backward compatibility (called from `details.component` when clicking a category tag); `searchByTag({material, technique, type})` for tag-clicks from the details page;
 - `getCollection()` makes a Search request, then in parallel (`forkJoin`) resolves 100 `HumanMadeObject`s for names. Images are separated, lazy via `ImageLoaderService`;
 - `getImageById(id, width)` returns **`Observable<string|null>`** (not string!), because resolution is asynchronous — use `| async` in templates;
 - caches details: `setupOnInitComponents` returns cached `currentArtObjectDetails` if the `objectNumber` matches, otherwise makes a new request.

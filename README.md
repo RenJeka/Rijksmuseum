@@ -7,7 +7,7 @@
     </a>
 </div>
 
-##### This is a test project, the essence of which is to give the user the opportunity to comfortably view basic information about the objects of art (paintings) of the Rijksmuseum.
+##### This is a test project, the essence of which is to give the user the opportunity to comfortably view basic information about the objects of art (paintings) of the Rijksmuseum. The app supports full-text search by title, artist name, object type (painting, drawing, print…) and century filter.
 
 ##### Let's see this project in work — [http://yevhenii.website/](http://yevhenii.website/)
 

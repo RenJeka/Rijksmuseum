@@ -13,6 +13,9 @@ export class MainComponent implements OnInit {
 
   public searchForm: FormGroup;
   public searchKeyword = new FormControl('');
+  public creator = new FormControl('');
+  public artType = new FormControl('');
+  public century = new FormControl('');
 
   constructor(
     public dataService: DataService,
@@ -22,11 +25,19 @@ export class MainComponent implements OnInit {
   ngOnInit(): void {
     this.searchForm = new FormGroup({
       searchKeyword: this.searchKeyword,
+      creator: this.creator,
+      artType: this.artType,
+      century: this.century,
     });
   }
 
   onSubmit(): void {
-    this.dataService.searchCollection('', this.searchKeyword.value);
+    this.dataService.applySearch({
+      keyword: this.searchKeyword.value,
+      creator: this.creator.value,
+      type: this.artType.value,
+      creationDate: this.century.value,
+    });
     this.searchKeyword.reset();
   }
 }

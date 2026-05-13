@@ -13,6 +13,37 @@
         placeholder="Search by title..."
       >
     </div>
+    <div class="input-block input-block_creator">
+      <input
+        formControlName="creator"
+        type="text"
+        class="input inp-word"
+        placeholder="Artist (e.g. Rembrandt)"
+        title="Search by artist or maker — e.g. Rembrandt, Vermeer, Jan Steen"
+      >
+    </div>
+    <div class="input-block input-block_type">
+      <select formControlName="artType" class="input select-filter">
+        <option value="">All types</option>
+        <option value="painting">Painting</option>
+        <option value="drawing">Drawing</option>
+        <option value="print">Print</option>
+        <option value="photograph">Photograph</option>
+        <option value="sculpture">Sculpture</option>
+        <option value="miniature">Miniature</option>
+      </select>
+    </div>
+    <div class="input-block input-block_century">
+      <select formControlName="century" class="input select-filter">
+        <option value="">All centuries</option>
+        <option value="14??">15th century</option>
+        <option value="15??">16th century</option>
+        <option value="16??">17th century</option>
+        <option value="17??">18th century</option>
+        <option value="18??">19th century</option>
+        <option value="19??">20th century</option>
+      </select>
+    </div>
     <div class="input-block input-block_submit">
       <input type="submit" class="input inp-search btn btn_orange" value='Search'>
     </div>
