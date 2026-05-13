@@ -1,4 +1,9 @@
 <section #modalGreeting>
+  <header class="page-header">
+    <h1 class="page-header__title">Rijksmuseum</h1>
+    <p class="page-header__subtitle">Explore the world-famous art collection of the Dutch national museum</p>
+  </header>
+
   <form (ngSubmit)="onSubmit()" [formGroup]="searchForm">
     <div class="input-block input-block_keyword">
       <input
@@ -32,6 +37,10 @@
 
   <!-- Favorite -->
   <ng-template [ngIf]="dataService.showFavorite">
+    <div class="section-header">
+      <h2 class="section-header__title">⭐ My Favorites</h2>
+      <span class="section-header__count">{{ dataService.favoriteArtCollection.length }} artworks saved</span>
+    </div>
     <div class="tiles-container">
       <div
         *ngFor="let favoriteArtObject of dataService.favoriteArtCollection"
@@ -52,6 +61,9 @@
   !dataService.showFavorite &&
   dataService.isArtCollectionLoaded &&
   dataService.artCollection?.artObjects?.length > 0">
+    <div class="section-header">
+      <h2 class="section-header__title">Collection</h2>
+    </div>
     <div class="tiles-container">
       <div
         *ngFor="let artObject of dataService.artObjects"
